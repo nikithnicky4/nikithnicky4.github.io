@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nikith Boddu — AI Workflow & Automation Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0F1C;
+    --bg-panel: #121A2B;
+    --ink: #E8EDF7;
+    --ink-soft: #8C99B3;
+    --line: #232E45;
+    --accent: #FF6B35;
+    --accent-soft: rgba(255,107,53,.14);
+    --teal: #2FE0AE;
+    --mono: 'IBM Plex Mono', monospace;
+    --display: 'Space Grotesk', sans-serif;
+    --body: 'Inter', sans-serif;
+    --rail-w: 74px;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  body{
+    background:
+      linear-gradient(var(--line) 1px, transparent 1px) 0 0/40px 40px,
+      linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0/40px 40px,
+      var(--bg);
+    color:var(--ink);
+    font-family:var(--body);
+    line-height:1.6;
+  }
+  a{ color:inherit; text-decoration:none; }
+  ::selection{ background:var(--accent); color:#fff; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.001ms !important; animation-iteration-count:1 !important; scroll-behavior:auto !important; transition-duration:0.001ms !important; }
+  }
+
+  /* ---------- Rail ---------- */
+  .rail{
+    position:fixed; top:0; left:0; width:var(--rail-w); height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding:28px 0; z-index:50;
+  }
+  .rail-line{
+    position:absolute; top:70px; bottom:70px; left:50%; width:2px;
+    background:var(--line); transform:translateX(-50%);
+  }
+  .rail-line::after{
+    content:''; position:absolute; left:0; top:0; width:100%; height:100%;
+    background:linear-gradient(var(--accent), transparent 60%);
+    transform:scaleY(0); transform-origin:top;
+    transition:transform .2s linear;
+  }
+  .rail-logo{
+    font-family:var(--mono); font-weight:600; font-size:13px;
+    background:var(--ink); color:var(--bg); width:34px; height:34px;
+    border-radius:8px; display:flex; align-items:center; justify-content:center;
+    z-index:2; letter-spacing:.5px;
+  }
+  .rail-nodes{
+    position:relative; flex:1; display:flex; flex-direction:column;
+    justify-content:space-between; padding:36px 0; z-index:2;
+  }
+  .rail-node{
+    display:flex; align-items:center; gap:10px; cursor:pointer;
+    color:var(--ink-soft); position:relative;
+  }
+  .rail-dot{
+    width:11px; height:11px; border-radius:50%; background:var(--bg-panel);
+    border:2px solid var(--line); flex-shrink:0; transition:.25s;
+  }
+  .rail-node.active .rail-dot{
+    background:var(--accent); border-color:var(--accent);
+    box-shadow:0 0 0 4px var(--accent-soft);
+  }
+  .rail-label{
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.06em;
+    writing-mode:vertical-rl; text-orientation:mixed; opacity:0; transform:translateX(-4px);
+    transition:.25s; white-space:nowrap;
+  }
+  .rail-node.active .rail-label{ opacity:1; transform:translateX(0); color:var(--ink); font-weight:600; }
+  .rail-stage{
+    font-family:var(--mono); font-size:9px; color:var(--ink-soft);
+    writing-mode:vertical-rl; letter-spacing:.08em; z-index:2; opacity:.6;
+  }
+
+  @media (max-width: 900px){
+    :root{ --rail-w: 0px; }
+    .rail{ display:none; }
+  }
+
+  /* ---------- Layout ---------- */
+  main{ margin-left:var(--rail-w); }
+  section{ padding:120px 8vw 100px; position:relative; }
+  .section-head{ margin-bottom:56px; }
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; color:var(--accent);
+    letter-spacing:.12em; text-transform:uppercase; display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before{ content:''; width:16px; height:1.5px; background:var(--accent); display:inline-block; }
+  h2{ font-family:var(--display); font-size:clamp(28px,3.4vw,42px); font-weight:600; margin-top:10px; }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    min-height:100vh; display:flex; flex-direction:column; justify-content:center;
+    padding-top:80px;
+  }
+  .hero-grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:60px; align-items:center; }
+  @media (max-width:900px){ .hero-grid{ grid-template-columns:1fr; } }
+  .hero-eyebrow{
+    font-family:var(--mono); font-size:13px; color:var(--teal); letter-spacing:.1em;
+    text-transform:uppercase; margin-bottom:18px; display:inline-flex; align-items:center; gap:8px;
+  }
+  .hero-eyebrow::before{ content:'●'; font-size:8px; color:var(--teal); animation:pulse 2s infinite; }
+  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.3;} }
+  .hero h1{
+    font-family:var(--display); font-weight:700; font-size:clamp(40px,6vw,74px);
+    line-height:1.02; letter-spacing:-.02em;
+  }
+  .hero p.lead{
+    margin-top:22px; font-size:19px; color:var(--ink-soft); max-width:52ch;
+  }
+  .hero .cta-row{ display:flex; gap:14px; margin-top:36px; flex-wrap:wrap; }
+  .btn{
+    font-family:var(--mono); font-size:13px; padding:13px 22px; border-radius:8px;
+    display:inline-flex; align-items:center; gap:8px; transition:.2s; border:1.5px solid transparent;
+  }
+  .btn-primary{ background:var(--ink); color:var(--bg); }
+  .btn-primary:hover{ background:var(--accent); transform:translateY(-2px); }
+  .btn-outline{ border-color:var(--line); color:var(--ink); background:var(--bg-panel); }
+  .btn-outline:hover{ border-color:var(--accent); color:var(--accent); transform:translateY(-2px); }
+
+  /* Pipeline visual */
+  .pipeline-card{
+    background:var(--bg-panel); border:1.5px solid var(--line); border-radius:14px;
+    padding:26px 22px; box-shadow:0 20px 40px -25px rgba(18,35,61,.25);
+  }
+  .pipeline-title{ font-family:var(--mono); font-size:11px; color:var(--ink-soft); letter-spacing:.08em; margin-bottom:18px; display:flex; justify-content:space-between; }
+  .pipeline-title span.status{ color:var(--teal); }
+  .pipeline-title span.status::before{ content:'●'; margin-right:5px; }
+  .pnode{
+    display:flex; align-items:center; gap:12px; padding:11px 0;
+    border-bottom:1px dashed var(--line); font-family:var(--mono); font-size:13px;
+  }
+  .pnode:last-child{ border-bottom:none; }
+  .pnode-dot{ width:8px; height:8px; border-radius:50%; background:var(--accent); flex-shrink:0; }
+  .pnode-arrow{ color:var(--line); margin-left:auto; }
+  .metrics-row{ display:flex; gap:18px; margin-top:22px; }
+  .metric{ font-family:var(--mono); }
+  .metric .num{ font-size:24px; font-weight:600; color:var(--ink); }
+  .metric .lbl{ font-size:10px; color:var(--ink-soft); letter-spacing:.05em; text-transform:uppercase; }
+
+  /* ---------- Skills ---------- */
+  .skill-groups{ display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; }
+  .skill-card{
+    background:var(--bg-panel); border:1.5px solid var(--line); border-radius:14px; padding:24px;
+  }
+  .skill-card h3{
+    font-family:var(--mono); font-size:13px; letter-spacing:.04em; margin-bottom:16px;
+    display:flex; align-items:center; gap:8px; color:var(--ink);
+  }
+  .skill-card h3 .dot{ width:7px; height:7px; border-radius:50%; background:var(--accent); }
+  .pill-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .pill{
+    font-family:var(--mono); font-size:12px; padding:6px 12px; border-radius:20px;
+    background:var(--bg); border:1px solid var(--line); color:var(--ink-soft);
+  }
+
+  /* ---------- Projects ---------- */
+  .project-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr)); gap:22px; }
+  .project-card{
+    background:var(--bg-panel); border:1.5px solid var(--line); border-radius:16px;
+    padding:26px; transition:.25s; display:flex; flex-direction:column;
+  }
+  .project-card:hover{ border-color:var(--accent); transform:translateY(-4px); box-shadow:0 24px 44px -28px rgba(18,35,61,.3); }
+  .project-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .project-icon{ font-size:22px; }
+  .project-date{ font-family:var(--mono); font-size:10.5px; color:var(--ink-soft); white-space:nowrap; }
+  .project-card h3{ font-family:var(--display); font-size:19px; margin:12px 0 8px; }
+  .project-card p.desc{ color:var(--ink-soft); font-size:14.5px; margin-bottom:16px; }
+  .flow-chain{
+    display:flex; flex-wrap:wrap; align-items:center; gap:6px; margin-bottom:16px;
+    font-family:var(--mono); font-size:11px;
+  }
+  .flow-step{
+    background:var(--bg); border:1px solid var(--line); padding:5px 9px; border-radius:6px; color:var(--ink);
+  }
+  .flow-sep{ color:var(--accent); }
+  .tag-row{ display:flex; flex-wrap:wrap; gap:7px; margin-top:auto; }
+  .project-link{
+    margin-top:16px; font-family:var(--mono); font-size:12px; color:var(--teal);
+    display:inline-flex; align-items:center; gap:6px; width:fit-content;
+  }
+  .project-link:hover{ color:var(--accent); }
+  .tag{
+    font-family:var(--mono); font-size:11px; padding:4px 9px; border-radius:5px;
+    background:var(--accent-soft); color:#FF9466;
+  }
+
+  /* ---------- Experience ---------- */
+  .log{ max-width:820px; }
+  .log-entry{
+    border-left:2px solid var(--line); padding:0 0 40px 26px; position:relative;
+  }
+  .log-entry:last-child{ padding-bottom:0; }
+  .log-entry::before{
+    content:''; position:absolute; left:-7px; top:2px; width:12px; height:12px;
+    border-radius:50%; background:var(--bg-panel); border:2px solid var(--accent);
+  }
+  .log-ts{ font-family:var(--mono); font-size:11.5px; color:var(--teal); }
+  .log-entry h3{ font-family:var(--display); font-size:19px; margin:6px 0 2px; }
+  .log-entry .org{ font-size:14px; color:var(--ink-soft); margin-bottom:10px; }
+  .log-entry ul{ list-style:none; }
+  .log-entry li{ font-size:14.5px; color:var(--ink-soft); padding-left:18px; position:relative; margin-bottom:6px; }
+  .log-entry li::before{ content:'›'; position:absolute; left:0; color:var(--accent); font-family:var(--mono); }
+
+  /* ---------- Education ---------- */
+  .edu-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:22px; }
+  .edu-card{ background:var(--bg-panel); border:1.5px solid var(--line); border-radius:14px; padding:26px; }
+  .edu-card .yrs{ font-family:var(--mono); font-size:11.5px; color:var(--teal); }
+  .edu-card h3{ font-family:var(--display); font-size:19px; margin:8px 0 4px; }
+  .edu-card .org{ color:var(--ink-soft); font-size:14px; margin-bottom:10px; }
+  .edu-card .note{ font-size:13.5px; color:var(--ink-soft); }
+
+  /* ---------- Contact ---------- */
+  .contact-panel{
+    background:linear-gradient(160deg, #16203A, #0D1424); color:var(--ink); border-radius:20px; padding:60px 8vw;
+    display:flex; flex-direction:column; align-items:flex-start; gap:22px;
+    border:1.5px solid var(--line);
+  }
+  .contact-panel .eyebrow{ color:var(--accent); }
+  .contact-panel h2{ color:var(--ink); }
+  .status-badge{
+    font-family:var(--mono); font-size:12px; padding:8px 14px; border-radius:20px;
+    background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.15);
+    display:inline-flex; align-items:center; gap:8px; color:var(--ink-soft);
+  }
+  .status-badge::before{ content:'●'; color:#4ADE80; }
+  .contact-links{ display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; }
+  .contact-links .btn-primary{ background:var(--accent); color:#fff; }
+  .contact-links .btn-outline{ background:transparent; color:var(--ink); border-color:rgba(255,255,255,.2); }
+  .contact-links .btn-outline:hover{ border-color:var(--accent); color:var(--accent); }
+  .contact-meta{ font-family:var(--mono); font-size:12.5px; color:var(--ink-soft); line-height:2; }
+
+  footer{ text-align:center; padding:30px; font-family:var(--mono); font-size:11px; color:var(--ink-soft); }
+</style>
+</head>
+<body>
+
+  <div class="rail" aria-hidden="true">
+    <div class="rail-logo">NB</div>
+    <div class="rail-line" id="railLine"></div>
+    <div class="rail-nodes" id="railNodes">
+      <div class="rail-node" data-target="hero"><span class="rail-dot"></span><span class="rail-label">01 · INIT</span></div>
+      <div class="rail-node" data-target="skills"><span class="rail-dot"></span><span class="rail-label">02 · STACK</span></div>
+      <div class="rail-node" data-target="projects"><span class="rail-dot"></span><span class="rail-label">03 · BUILD</span></div>
+      <div class="rail-node" data-target="experience"><span class="rail-dot"></span><span class="rail-label">04 · DEPLOY</span></div>
+      <div class="rail-node" data-target="education"><span class="rail-dot"></span><span class="rail-label">05 · LEARN</span></div>
+      <div class="rail-node" data-target="contact"><span class="rail-dot"></span><span class="rail-label">06 · CONNECT</span></div>
+    </div>
+  </div>
+
+  <main>
+
+    <section id="hero" class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-eyebrow">Pipeline status: live</div>
+          <h1>Nikith Boddu</h1>
+          <p class="lead">AI Workflow &amp; Automation Engineer building agentic systems, RAG pipelines, and voice AI that ship into real workflows — not just demos. MSc Computer Science, University of Passau.</p>
+          <div class="cta-row">
+            <a href="#projects" class="btn btn-primary">View Projects →</a>
+            <a href="https://github.com/nikithnicky4" target="_blank" rel="noopener" class="btn btn-outline">GitHub ↗</a>
+            <a href="https://www.linkedin.com/in/nikith-boddu-557832237" target="_blank" rel="noopener" class="btn btn-outline">LinkedIn ↗</a>
+            <a href="#contact" class="btn btn-outline">Contact Me</a>
+          </div>
+        </div>
+        <div class="pipeline-card">
+          <div class="pipeline-title">workflow.run() <span class="status">passing</span></div>
+          <div class="pnode"><span class="pnode-dot"></span> support_ticket_agent.py <span class="pnode-arrow">✓</span></div>
+          <div class="pnode"><span class="pnode-dot"></span> text_to_sql_agent.langgraph <span class="pnode-arrow">✓</span></div>
+          <div class="pnode"><span class="pnode-dot"></span> movie_rag_chatbot.py <span class="pnode-arrow">✓</span></div>
+          <div class="pnode"><span class="pnode-dot"></span> voice_agent.retell — <em style="color:var(--teal);font-style:normal;">in progress</em></div>
+          <div class="metrics-row">
+            <div class="metric"><div class="num">4</div><div class="lbl">Shipped Builds</div></div>
+            <div class="metric"><div class="num">5</div><div class="lbl">Team Led</div></div>
+            <div class="metric"><div class="num">92%</div><div class="lbl">Model Accuracy</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="skills">
+      <div class="section-head">
+        <div class="eyebrow">02 · Stack</div>
+        <h2>Skills &amp; Technologies</h2>
+      </div>
+      <div class="skill-groups">
+        <div class="skill-card">
+          <h3><span class="dot"></span>AI &amp; Automation</h3>
+          <div class="pill-row">
+            <span class="pill">OpenAI APIs</span><span class="pill">LLMs</span><span class="pill">RAG</span>
+            <span class="pill">AI Agents</span><span class="pill">LangChain</span><span class="pill">LangGraph</span>
+            <span class="pill">n8n</span><span class="pill">Power Automate</span><span class="pill">NLP</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <h3><span class="dot"></span>Programming &amp; Analytics</h3>
+          <div class="pill-row">
+            <span class="pill">Python</span><span class="pill">SQL</span><span class="pill">Machine Learning</span>
+            <span class="pill">Data Analysis</span><span class="pill">Streamlit</span><span class="pill">Power BI</span><span class="pill">Excel</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <h3><span class="dot"></span>Technical Tools</h3>
+          <div class="pill-row">
+            <span class="pill">FastAPI</span><span class="pill">Docker</span><span class="pill">GitHub</span>
+            <span class="pill">YAML</span><span class="pill">Jira</span><span class="pill">SharePoint</span>
+          </div>
+        </div>
+        <div class="skill-card">
+          <h3><span class="dot"></span>Collaboration &amp; Languages</h3>
+          <div class="pill-row">
+            <span class="pill">Agile</span><span class="pill">Technical Docs</span><span class="pill">Stakeholder Comms</span>
+            <span class="pill">English C1</span><span class="pill">German B1/B2</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="section-head">
+        <div class="eyebrow">03 · Build</div>
+        <h2>What I've Built</h2>
+      </div>
+      <div class="project-grid">
+
+        <div class="project-card">
+          <div class="project-head">
+            <div class="project-icon">🎫</div>
+            <div class="project-date">10/2025 – 01/2026</div>
+          </div>
+          <h3>AI Support Ticket System</h3>
+          <p class="desc">AI-powered workflow that processes incoming support requests and auto-generates structured, multilingual responses at scale.</p>
+          <div class="flow-chain">
+            <span class="flow-step">Request</span><span class="flow-sep">→</span>
+            <span class="flow-step">n8n Trigger</span><span class="flow-sep">→</span>
+            <span class="flow-step">RAG · Qdrant</span><span class="flow-sep">→</span>
+            <span class="flow-step">Response</span>
+          </div>
+          <div class="tag-row">
+            <span class="tag">Python</span><span class="tag">OpenAI API</span><span class="tag">RAG</span><span class="tag">Qdrant</span><span class="tag">n8n</span>
+          </div>
+          <a href="https://github.com/nikithnicky4/AI-Support-Ticket-System" target="_blank" rel="noopener" class="project-link">View Code ↗</a>
+        </div>
+
+        <div class="project-card">
+          <div class="project-head">
+            <div class="project-icon">🗄️</div>
+            <div class="project-date">10/2025 – 01/2026</div>
+          </div>
+          <h3>Text-to-SQL AI Agent</h3>
+          <p class="desc">LangGraph agent that converts natural-language questions into accurate SQL queries across multiple database tables.</p>
+          <div class="flow-chain">
+            <span class="flow-step">NL Query</span><span class="flow-sep">→</span>
+            <span class="flow-step">LangGraph</span><span class="flow-sep">→</span>
+            <span class="flow-step">SQLite</span><span class="flow-sep">→</span>
+            <span class="flow-step">Answer</span>
+          </div>
+          <div class="tag-row">
+            <span class="tag">LangGraph</span><span class="tag">Python</span><span class="tag">SQLite</span>
+          </div>
+          <a href="https://github.com/nikithnicky4/agentic-ai-projects" target="_blank" rel="noopener" class="project-link">View Code ↗</a>
+        </div>
+
+        <div class="project-card">
+          <div class="project-head">
+            <div class="project-icon">🎬</div>
+            <div class="project-date">08/2025 – 10/2025</div>
+          </div>
+          <h3>Movie RAG Chatbot</h3>
+          <p class="desc">End-to-end RAG application answering natural-language questions through AI-based retrieval workflows.</p>
+          <div class="flow-chain">
+            <span class="flow-step">Question</span><span class="flow-sep">→</span>
+            <span class="flow-step">FAISS</span><span class="flow-sep">→</span>
+            <span class="flow-step">LLM</span><span class="flow-sep">→</span>
+            <span class="flow-step">Streamlit UI</span>
+          </div>
+          <div class="tag-row">
+            <span class="tag">FastAPI</span><span class="tag">Streamlit</span><span class="tag">FAISS</span><span class="tag">Python</span>
+          </div>
+          <a href="https://github.com/nikithnicky4/tmdb-movie-eda" target="_blank" rel="noopener" class="project-link">View Code ↗</a>
+        </div>
+
+        <div class="project-card">
+          <div class="project-head">
+            <div class="project-icon">📞</div>
+            <div class="project-date">Apr 2026 – Present</div>
+          </div>
+          <h3>AI Voice Calling Agent</h3>
+          <p class="desc">Sole developer &amp; team lead for a 5-person team building an automated receptionist agent — appointment booking plus go-to-market strategy.</p>
+          <div class="flow-chain">
+            <span class="flow-step">Call In</span><span class="flow-sep">→</span>
+            <span class="flow-step">Retell AI Agent</span><span class="flow-sep">→</span>
+            <span class="flow-step">Booking Logic</span><span class="flow-sep">→</span>
+            <span class="flow-step">Scheduled</span>
+          </div>
+          <div class="tag-row">
+            <span class="tag">Retell AI</span><span class="tag">Voice AI</span><span class="tag">Team Lead</span><span class="tag">Go-to-Market</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-head">
+            <div class="project-icon">🧬</div>
+            <div class="project-date">2023 · Published</div>
+          </div>
+          <h3>Hybrid ML for Breast Cancer Detection</h3>
+          <p class="desc">Hybrid K-Means + GMM model for breast cancer detection. Published in IJRASET. Bachelor's final-year project.</p>
+          <div class="flow-chain">
+            <span class="flow-step">Clinical Data</span><span class="flow-sep">→</span>
+            <span class="flow-step">Feature Extraction</span><span class="flow-sep">→</span>
+            <span class="flow-step">K-Means + GMM</span><span class="flow-sep">→</span>
+            <span class="flow-step">Detection</span>
+          </div>
+          <div class="tag-row">
+            <span class="tag">Python</span><span class="tag">Machine Learning</span><span class="tag">IJRASET</span>
+          </div>
+        </div>
+
+        <div class="project-card">
+          <div class="project-head">
+            <div class="project-icon">🎣</div>
+            <div class="project-date">10/2021 – 02/2022</div>
+          </div>
+          <h3>Phishing URL Detection</h3>
+          <p class="desc">ML model detecting phishing URLs with 92% accuracy — feature extraction and preprocessing over large-scale cybersecurity datasets.</p>
+          <div class="flow-chain">
+            <span class="flow-step">Raw URLs</span><span class="flow-sep">→</span>
+            <span class="flow-step">Feature Extraction</span><span class="flow-sep">→</span>
+            <span class="flow-step">Classifier</span><span class="flow-sep">→</span>
+            <span class="flow-step">92% Accuracy</span>
+          </div>
+          <div class="tag-row">
+            <span class="tag">Python</span><span class="tag">ML</span><span class="tag">Cybersecurity</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <section id="experience">
+      <div class="section-head">
+        <div class="eyebrow">04 · Deploy</div>
+        <h2>Where I've Worked</h2>
+      </div>
+      <div class="log">
+        <div class="log-entry">
+          <div class="log-ts">[ Apr 2026 → present ]</div>
+          <h3>Team Lead &amp; AI Developer</h3>
+          <div class="org">Honors Degree in Entrepreneurship · University of Passau, Germany</div>
+          <ul>
+            <li>Leading a 5-person cross-functional team building an AI calling agent on Retell AI for automated receptionist roles.</li>
+            <li>Engineered core voice interaction logic for appointment booking; driving commercial go-to-market strategy.</li>
+          </ul>
+        </div>
+        <div class="log-entry">
+          <div class="log-ts">[ Oct 2021 → Feb 2022 ]</div>
+          <h3>Machine Learning Intern</h3>
+          <div class="org">Patech Learning · Remote</div>
+          <ul>
+            <li>Developed a phishing-URL detection model reaching 92% accuracy as part of bachelor's coursework.</li>
+            <li>Engineered feature extraction and preprocessing pipelines for large-scale cybersecurity datasets.</li>
+          </ul>
+        </div>
+        <div class="log-entry">
+          <div class="log-ts">[ 2023 ]</div>
+          <h3>Core Volunteer</h3>
+          <div class="org">Pro Student Tribe (Prost) · Germany</div>
+          <ul>
+            <li>Managed logistics and operations for a startup community event hosting 15,000+ students.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="education">
+      <div class="section-head">
+        <div class="eyebrow">05 · Learn</div>
+        <h2>Education</h2>
+      </div>
+      <div class="edu-grid">
+        <div class="edu-card">
+          <div class="yrs">2024 → Present · Expected 2027</div>
+          <h3>MSc Computer Science</h3>
+          <div class="org">University of Passau, Germany</div>
+          <div class="note">Focus: Artificial Intelligence, Data Engineering &amp; LLM Applications.</div>
+        </div>
+        <div class="edu-card">
+          <div class="yrs">2019 → 2023</div>
+          <h3>BE Information Technology</h3>
+          <div class="org">Matrusri Engineering College (Osmania University), India</div>
+          <div class="note">Graduated with First Class Honors.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact">
+      <div class="contact-panel">
+        <div class="eyebrow">06 · Connect</div>
+        <h2>Let's work together</h2>
+        <div class="status-badge">Available from August 2026 · Open to relocation across Germany</div>
+        <div class="contact-links">
+          <a href="mailto:nikithboddu@gmail.com" class="btn btn-primary">✉ nikithboddu@gmail.com</a>
+          <a href="https://github.com/nikithnicky4" target="_blank" rel="noopener" class="btn btn-outline">⚡ GitHub</a>
+          <a href="https://www.linkedin.com/in/nikith-boddu-557832237" target="_blank" rel="noopener" class="btn btn-outline">💼 LinkedIn</a>
+        </div>
+        <div class="contact-meta">
+          Valid German student residence permit — full work authorization (120/240 days)<br>
+          English (C1 · Fluent) · German (B1/B2 · Professional Working Proficiency)
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>Built with HTML, CSS &amp; JavaScript · Nikith Boddu © 2026</footer>
+
+<script>
+  const nodes = document.querySelectorAll('.rail-node');
+  const sections = document.querySelectorAll('main section');
+  const railLineAfter = document.getElementById('railLine');
+
+  const observer = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const id = entry.target.id;
+      const node = document.querySelector(`.rail-node[data-target="${id}"]`);
+      if(entry.isIntersecting){
+        nodes.forEach(n=>n.classList.remove('active'));
+        if(node) node.classList.add('active');
+        const idx = Array.from(nodes).indexOf(node);
+        const frac = (idx+1)/nodes.length;
+        railLineAfter.style.setProperty('--p', frac);
+      }
+    });
+  }, { rootMargin: '-45% 0px -45% 0px', threshold: 0 });
+
+  sections.forEach(s=>observer.observe(s));
+
+  nodes.forEach(n=>{
+    n.addEventListener('click', ()=>{
+      document.getElementById(n.dataset.target).scrollIntoView({behavior:'smooth'});
+    });
+  });
+
+  // animate rail progress fill
+  const style = document.createElement('style');
+  style.textContent = `.rail-line::after{ transform: scaleY(var(--p, 0%)); }`;
+  document.head.appendChild(style);
+</script>
+
+</body>
+</html>
